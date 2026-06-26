@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
- function authenticateToken(req, res, next) {
+function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
 
@@ -31,8 +31,22 @@ const options = {
       version: '1.0.0',
       description: 'API for submissions and user authentication'
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
-  apis: ['./index.js'], // path to files with annotations
+  apis: ['./index.js'],
 };
 
 const specs = swaggerJsdoc(options);
@@ -45,11 +59,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
  * /api/v1/submissions:
  *   get:
  *     summary: Get all submissions
+ *     security:
+ *       - bearerAuth: [] 
  *     responses:
  *       200:
  *         description: List of submissions
  */
-app.get('/api/v1/submissions',authenticateToken, async (req, res) => {
+app.get('/api/v1/submissions', authenticateToken, async (req, res) => {
   res.json({ message: 'List of submissions' });
 });
 
@@ -68,7 +84,7 @@ app.get('/api/v1/submissions',authenticateToken, async (req, res) => {
  *       200:
  *         description: Submission object
  */
-app.get('/api/v1/submissions/:id',authenticateToken, async (req, res) => {
+app.get('/api/v1/submissions/:id', authenticateToken, async (req, res) => {
   res.json({ message: `Submission ${req.params.id}` });
 });
 
@@ -77,6 +93,8 @@ app.get('/api/v1/submissions/:id',authenticateToken, async (req, res) => {
  * /api/v1/submissions:
  *   post:
  *     summary: Create a submission
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -92,7 +110,7 @@ app.get('/api/v1/submissions/:id',authenticateToken, async (req, res) => {
  *       200:
  *         description: Submission created
  */
-app.post('/api/v1/submissions',authenticateToken, async (req, res) => {
+app.post('/api/v1/submissions', authenticateToken, async (req, res) => {
   res.json({ message: 'Submission created', data: req.body });
 });
 
@@ -101,6 +119,8 @@ app.post('/api/v1/submissions',authenticateToken, async (req, res) => {
  * /api/v1/submissions/{id}:
  *   put:
  *     summary: Update a submission
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -122,7 +142,7 @@ app.post('/api/v1/submissions',authenticateToken, async (req, res) => {
  *       200:
  *         description: Submission updated
  */
-app.put('/api/v1/submissions/:id',authenticateToken, async (req, res) => {
+app.put('/api/v1/submissions/:id', authenticateToken, async (req, res) => {
   res.json({ message: `Submission ${req.params.id} updated`, data: req.body });
 });
 
@@ -151,14 +171,17 @@ app.put('/api/v1/submissions/:id',authenticateToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: User registered
+ *       400:
+ *         description: Invalid or missing fields
  */
 // --- Register user ---
 app.post('/api/v1/auth/register', async (req, res) => {
   try {
     const { name, email, role, password } = req.body;
 
-    if(role != 'applicant' || role != 'reviewer'){
-      res.status(400).json({message: "Process failed, user role should be 'applicant' or 'reviewer'"});
+    if (role != 'applicant' || role != 'reviewer') {
+      res.status(400).json({ message: "Process failed, user role should be 'applicant' or 'reviewer'" });
+      return;
     }
 
     // hash password
