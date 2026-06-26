@@ -94,10 +94,84 @@ exports.createSubmission = async (req, res) => {
 exports.updateSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByPk(req.params.id);
-    if (!submission)
+    if (!submission) {
       return res.status(404).json({ error: "Submission not found" });
-    await submission.update(req.body);
-    res.json(submission);
+    }
+
+    // Applicant logic:
+    // Applicants can only edit Draft or Rejected submissions,
+    // and when they edit, the status must change to Submitted.
+    if (req.user.role === "Applicant") {
+      // applicant can only edit their own submissions
+      if (submission.creatorId != req.user.id) {
+        return res.status(403).json({ error: "Applicants can only edit their submissions" });
+      }
+      if (!["Draft", "Returned"].includes(submission.status)) {
+        return res.status(403).json({
+          error: "Applicants can only edit Draft or Returned submissions",
+        });
+      }
+
+      const { title, description, startDate, endDate } = req.body;
+
+      // validate dates again
+      const now = new Date();
+      const start = startDate ? new Date(startDate) : submission.startDate;
+      const end = endDate ? new Date(endDate) : submission.endDate;
+
+      if (start < now) {
+        return res
+          .status(400)
+          .json({ error: "Leave start date cannot be in the past" });
+      }
+      if (end && start > end) {
+        return res
+          .status(400)
+          .json({ error: "Leave start date should be before leave end date" });
+      }
+
+      await submission.update({
+        title: title ?? submission.title,
+        description: description ?? submission.description,
+        startDate: start,
+        endDate: end,
+        status: "Submitted", // force status to Submitted
+      });
+
+      return res.status(200).json(submission);
+    }
+
+    // Reviewer logic: Status change should be stepwise
+    // Reviewers can change status from Submitted → UnderReview → Approved/Rejected/Returned
+    if (req.user.role === "Reviewer") {
+      const { status, comment } = req.body;
+
+      const allowedTransitions = {
+        Submitted: ["UnderReview"],
+        UnderReview: ["Approved", "Rejected", "Returned"],
+      };
+
+      if (
+        !allowedTransitions[submission.status] ||
+        !allowedTransitions[submission.status].includes(status)
+      ) {
+        return res.status(400).json({
+          error: `Invalid status transition from ${submission.status} to ${status}`,
+        });
+      }
+
+      await submission.update({
+        status,
+        reviewerId: req.user.id,
+        dateReviewed: new Date(),
+        comment: comment ?? submission.comment,
+      });
+
+      return res.status(200).json(submission);
+    }
+
+    // If neither Applicant nor Reviewer
+    return res.status(403).json({ error: "Unauthorized role" });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
