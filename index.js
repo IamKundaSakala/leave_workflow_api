@@ -261,7 +261,7 @@ app.post("/api/v1/auth/register", async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       message: "User registered",
       user: { id: user.id, email: user.email, role: user.role },
     });
@@ -317,6 +317,4 @@ app.post("/api/v1/auth/login", async (req, res) => {
   }
 });
 
-app.listen(3000, () =>
-  console.log("Workflow API running on http://localhost:3000"),
-);
+module.exports = app;

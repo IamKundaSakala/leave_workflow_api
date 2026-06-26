@@ -27,7 +27,7 @@ exports.getSubmissionById = async (req, res) => {
     if (!submission)
       return res.status(404).json({ error: "Submission not found" });
     // if user is applicant, check if they created it
-    if (req.user.role == "Applicant" && submission.creatorId != req.user.role) {
+    if (req.user.role == "Applicant" && submission.creatorId != req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
     }
     res.json(submission);
