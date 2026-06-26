@@ -1,12 +1,20 @@
 // controllers/submissionController.js
-const db = require('../models');
+const db = require("../models");
 const { Submission } = db;
 
 // Get all submissions
 exports.getAllSubmissions = async (req, res) => {
   try {
-    const submissions = await Submission.findAll();
-    res.json(submissions);
+    // if user is reviewer, return all submissions
+    if (req.user.role == "Reviewer") {
+      const submissions = await Submission.findAll();
+      res.status(200).json(submissions);
+    }
+    // else just return their submissions
+    const submissions = await Submission.findAll({
+      where: { creatorId: req.user.id },
+    });
+    res.status(200).json(submissions);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -16,7 +24,8 @@ exports.getAllSubmissions = async (req, res) => {
 exports.getSubmissionById = async (req, res) => {
   try {
     const submission = await Submission.findByPk(req.params.id);
-    if (!submission) return res.status(404).json({ error: 'Submission not found' });
+    if (!submission)
+      return res.status(404).json({ error: "Submission not found" });
     res.json(submission);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -27,15 +36,19 @@ exports.getSubmissionById = async (req, res) => {
 exports.createSubmission = async (req, res) => {
   try {
     // Check role from JWT payload
-    if (req.user.role !== 'Applicant') {
-      return res.status(403).json({ error: 'Only Applicants can create submissions' });
+    if (req.user.role !== "Applicant") {
+      return res
+        .status(403)
+        .json({ error: "Only Applicants can create submissions" });
     }
 
     const { title, category, description, startDate, endDate } = req.body;
 
     // Basic validation
     if (!title || !category || !startDate) {
-      return res.status(400).json({ error: 'Title, category, and startDate are required' });
+      return res
+        .status(400)
+        .json({ error: "Title, category, and startDate are required" });
     }
 
     // Create submission
@@ -45,14 +58,14 @@ exports.createSubmission = async (req, res) => {
       description,
       startDate,
       endDate,
-      creatorId: req.user.id,   // from JWT
-      status: 'Submitted',      // default when created
-      dateCreated: new Date()
+      creatorId: req.user.id, // from JWT
+      status: "Submitted", // default when created
+      dateCreated: new Date(),
     });
 
     res.status(201).json({
-      message: 'Submission created successfully',
-      submission
+      message: "Submission created successfully",
+      submission,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -63,7 +76,8 @@ exports.createSubmission = async (req, res) => {
 exports.updateSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByPk(req.params.id);
-    if (!submission) return res.status(404).json({ error: 'Submission not found' });
+    if (!submission)
+      return res.status(404).json({ error: "Submission not found" });
     await submission.update(req.body);
     res.json(submission);
   } catch (err) {
