@@ -1,50 +1,65 @@
 const express = require('express');
-const { User } = require('./models');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
 app.use(express.json());
 
-// Swagger setup
+// --- Swagger Setup ---
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Express Postgres API',
+      title: 'Workflow Management API',
       version: '1.0.0',
-      description: 'API with Sequelize, migrations, seeders, and Swagger docs'
+      description: 'API for submissions and user authentication'
     },
   },
-  apis: ['./index.js'], // Path to files with annotations
+  apis: ['./index.js'], // path to files with annotations
 };
 
 const specs = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+// --- Submissions Routes ---
+
 /**
  * @swagger
- * /users:
+ * /api/v1/submissions:
  *   get:
- *     summary: Get all users
+ *     summary: Get all submissions
  *     responses:
  *       200:
- *         description: List of users
+ *         description: List of submissions
  */
-app.get('/users', async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get('/api/v1/submissions', async (req, res) => {
+  res.json({ message: 'List of submissions' });
 });
 
 /**
  * @swagger
- * /users:
+ * /api/v1/submissions/{id}:
+ *   get:
+ *     summary: Get one submission
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Submission object
+ */
+app.get('/api/v1/submissions/:id', async (req, res) => {
+  res.json({ message: `Submission ${req.params.id}` });
+});
+
+/**
+ * @swagger
+ * /api/v1/submissions:
  *   post:
- *     summary: Create a new user
+ *     summary: Create a submission
  *     requestBody:
  *       required: true
  *       content:
@@ -52,53 +67,23 @@ app.get('/users', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               title:
  *                 type: string
- *               email:
+ *               description:
  *                 type: string
  *     responses:
  *       200:
- *         description: User created
+ *         description: Submission created
  */
-app.post('/users', async (req, res) => {
-  try {
-    const user = await User.create(req.body);
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+app.post('/api/v1/submissions', async (req, res) => {
+  res.json({ message: 'Submission created', data: req.body });
 });
 
 /**
  * @swagger
- * /users/{id}:
- *   get:
- *     summary: Get user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: User object
- */
-app.get('/users/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * @swagger
- * /users/{id}:
+ * /api/v1/submissions/{id}:
  *   put:
- *     summary: Update user by ID
+ *     summary: Update a submission
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,49 +97,70 @@ app.get('/users/:id', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
+ *               status:
+ *                 type: string
+ *               comments:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Submission updated
+ */
+app.put('/api/v1/submissions/:id', async (req, res) => {
+  res.json({ message: `Submission ${req.params.id} updated`, data: req.body });
+});
+
+// --- Auth Routes ---
+
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
  *               name:
  *                 type: string
  *               email:
  *                 type: string
+ *               role:
+ *                 type: string
+ *               password:
+ *                 type: string
  *     responses:
  *       200:
- *         description: User updated
+ *         description: User registered
  */
-app.put('/users/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    await user.update(req.body);
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+app.post('/api/v1/auth/register', async (req, res) => {
+  res.json({ message: 'User registered', data: req.body });
 });
 
 /**
  * @swagger
- * /users/{id}:
- *   delete:
- *     summary: Delete user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
+ * /api/v1/auth/login:
+ *   post:
+ *     summary: Login a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
  *     responses:
  *       200:
- *         description: User deleted
+ *         description: User logged in
  */
-app.delete('/users/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    await user.destroy();
-    res.json({ message: 'User deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.post('/api/v1/auth/login', async (req, res) => {
+  res.json({ message: 'User logged in', data: req.body });
 });
 
-app.listen(3000, () => console.log('API running on http://localhost:3000'));
+app.listen(3000, () => console.log('Workflow API running on http://localhost:3000'));
