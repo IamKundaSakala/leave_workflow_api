@@ -51,6 +51,24 @@ exports.createSubmission = async (req, res) => {
         .json({ error: "Title, category, and startDate are required" });
     }
 
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = endDate ? new Date(endDate) : null;
+
+    // start date must not be in the past
+    if (start < now) {
+      return res
+        .status(400)
+        .json({ error: "Leave start date cannot be in the past" });
+    }
+
+    // start date must be before end date
+    if (end && start > end) {
+      return res
+        .status(400)
+        .json({ error: "Leave start date should be before leave end date" });
+    }
+
     // Create submission
     const submission = await Submission.create({
       title,
