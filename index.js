@@ -49,7 +49,7 @@ const options = {
         },
       },
       schemas: {
-        CreateSubmission: {
+        CreateSubmissionSchema: {
           type: "object",
           properties: {
             // id: { type: 'integer', example: 1 },
@@ -79,6 +79,44 @@ const options = {
             // },
             // dateReviewed: { type: 'string', format: 'date-time', nullable: true },
             // reviewerId: { type: 'integer', nullable: true }
+          },
+        },
+        UpdateSubmissionSchema: {
+          type: "object",
+          properties: {
+            title: { type: "string", example: "Medical Leave" },
+            category: {
+              type: "string",
+              enum: ["Sick", "Maternity", "Paternity", "Welfare", "Other"],
+              example: "Sick",
+            },
+            description: { type: "string", example: "Recovering from flu" },
+            startDate: {
+              type: "string",
+              format: "date-time",
+              example: "2026-06-26",
+            },
+            endDate: {
+              type: "string",
+              format: "date-time",
+              example: "2026-06-30",
+            },
+            status: {
+              type: "string",
+              enum: [
+                "Draft",
+                "Submitted",
+                "UnderReview",
+                "Approved",
+                "Returned",
+                "Rejected",
+              ],
+              example: "UnderReview",
+            },
+            comment: {
+              type: "string",
+              example: "To be reviewed",
+            },
           },
         },
       },
@@ -139,7 +177,7 @@ app.get("/api/v1/submissions/:id", authenticateToken, getSubmissionById);
  *       content:
  *         application/json:
  *           schema:
- *              $ref: '#/components/schemas/CreateSubmission'
+ *              $ref: '#/components/schemas/CreateSubmissionSchema'
  *     responses:
  *       200:
  *         description: Submission created
@@ -164,12 +202,7 @@ app.post("/api/v1/submissions", authenticateToken, createSubmission);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *               comments:
- *                 type: string
+ *              $ref: '#/components/schemas/UpdateSubmissionSchema'
  *     responses:
  *       200:
  *         description: Submission updated
@@ -210,12 +243,10 @@ app.post("/api/v1/auth/register", async (req, res) => {
     const { name, email, role, password } = req.body;
 
     if (role != "Applicant" && role != "Reviewer") {
-      res
-        .status(400)
-        .json({
-          message:
-            "Process failed, user role should be 'Applicant' or 'Reviewer'",
-        });
+      res.status(400).json({
+        message:
+          "Process failed, user role should be 'Applicant' or 'Reviewer'",
+      });
       return;
     }
 
@@ -230,12 +261,10 @@ app.post("/api/v1/auth/register", async (req, res) => {
       password: hashedPassword,
     });
 
-    res
-      .status(200)
-      .json({
-        message: "User registered",
-        user: { id: user.id, email: user.email, role: user.role },
-      });
+    res.status(200).json({
+      message: "User registered",
+      user: { id: user.id, email: user.email, role: user.role },
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

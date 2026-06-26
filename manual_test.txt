@@ -1,0 +1,41 @@
+🔐 Authentication Tests
+1. Register Applicant: Register a user with role Applicant and confirm 201 Created with correct user object.
+
+2. Register Reviewer: Register a user with role Reviewer.
+
+3. Invalid Role: Try registering with role Admin → expect 400 Bad Request.
+
+4. Login Success: Login with valid credentials → expect 200 OK and JWT token.
+
+5. Login Failure: Login with wrong password → expect 401 Unauthorized.
+
+📄 Submission Creation Tests
+1. Applicant Create Valid Submission: Applicant creates submission with valid dates → expect 201 Created and full submission object.
+
+2. Applicant Create Past Start Date: Start date < today → expect 400 Bad Request.
+
+3. Applicant Create Invalid Range: Start date > end date → expect 400 Bad Request.
+
+4. Reviewer Create Submission: Reviewer tries to create → expect 403 Forbidden.
+
+📑 Submission Retrieval Tests
+1. Reviewer Get All Submissions: Reviewer fetches → expect all submissions.
+
+2. Applicant Get Own Submissions: Applicant fetches → expect only their submissions.
+
+3. Get Submission By ID: Fetch valid ID → expect correct submission.
+
+4. Get Nonexistent Submission: Fetch invalid ID → expect 404 Not Found.
+
+✏️ Submission Update Tests
+1. Applicant Update Draft: Applicant edits Draft → status should change to Submitted.
+
+2. Applicant Update Approved: Applicant tries editing Approved → expect 403 Forbidden.
+
+3. Reviewer Move Submitted → UnderReview: Reviewer changes status → expect success.
+
+4. Reviewer Approve With Comment: Reviewer approves and adds comment → expect comment saved.
+
+5. Reviewer Reject With Comment: Reviewer rejects and adds comment → expect comment saved.
+
+6. Reviewer Invalid Transition: Reviewer tries Approved → Submitted → expect 400 Bad Request.

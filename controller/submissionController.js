@@ -26,6 +26,10 @@ exports.getSubmissionById = async (req, res) => {
     const submission = await Submission.findByPk(req.params.id);
     if (!submission)
       return res.status(404).json({ error: "Submission not found" });
+    // if user is applicant, check if they created it
+    if (req.user.role == "Applicant" && submission.creatorId != req.user.role) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
     res.json(submission);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -104,7 +108,9 @@ exports.updateSubmission = async (req, res) => {
     if (req.user.role === "Applicant") {
       // applicant can only edit their own submissions
       if (submission.creatorId != req.user.id) {
-        return res.status(403).json({ error: "Applicants can only edit their submissions" });
+        return res
+          .status(403)
+          .json({ error: "Applicants can only edit their submissions" });
       }
       if (!["Draft", "Returned"].includes(submission.status)) {
         return res.status(403).json({
@@ -129,7 +135,7 @@ exports.updateSubmission = async (req, res) => {
           .status(400)
           .json({ error: "Leave start date should be before leave end date" });
       }
-
+      // The  fields applicant can update
       await submission.update({
         title: title ?? submission.title,
         description: description ?? submission.description,
@@ -159,7 +165,7 @@ exports.updateSubmission = async (req, res) => {
           error: `Invalid status transition from ${submission.status} to ${status}`,
         });
       }
-
+      // The only fields reviewer can update
       await submission.update({
         status,
         reviewerId: req.user.id,
