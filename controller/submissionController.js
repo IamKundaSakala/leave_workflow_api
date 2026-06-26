@@ -23,13 +23,39 @@ exports.getSubmissionById = async (req, res) => {
   }
 };
 
-// Create submission
+// Create submission (only Applicant role)
 exports.createSubmission = async (req, res) => {
   try {
-    const submission = await Submission.create(req.body);
-    res.status(201).json(submission);
+    // Check role from JWT payload
+    if (req.user.role !== 'Applicant') {
+      return res.status(403).json({ error: 'Only Applicants can create submissions' });
+    }
+
+    const { title, category, description, startDate, endDate } = req.body;
+
+    // Basic validation
+    if (!title || !category || !startDate) {
+      return res.status(400).json({ error: 'Title, category, and startDate are required' });
+    }
+
+    // Create submission
+    const submission = await Submission.create({
+      title,
+      category,
+      description,
+      startDate,
+      endDate,
+      creatorId: req.user.id,   // from JWT
+      status: 'Submitted',      // default when created
+      dateCreated: new Date()
+    });
+
+    res.status(201).json({
+      message: 'Submission created successfully',
+      submission
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
