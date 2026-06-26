@@ -28,14 +28,13 @@
 4. Get Nonexistent Submission: Fetch invalid ID → expect 404 Not Found.
 
 ✏️ Submission Update Tests
-1. Applicant Update Draft: Applicant edits Draft → status should change to Submitted.
 
-2. Applicant Update Approved: Applicant tries editing Approved → expect 403 Forbidden.
+1. Applicant Update Approved: Applicant tries editing Approved → expect 403 Forbidden.
 
-3. Reviewer Move Submitted → UnderReview: Reviewer changes status → expect success.
+2. Reviewer Move Submitted → UnderReview: Reviewer changes status → expect success.
 
-4. Reviewer Approve With Comment: Reviewer approves and adds comment → expect comment saved.
+3. Reviewer Approve With Comment: Reviewer approves and adds comment → expect comment saved.
 
-5. Reviewer Reject With Comment: Reviewer rejects and adds comment → expect comment saved.
+4. Reviewer Reject With Comment: Reviewer rejects and adds comment → expect comment saved.
 
-6. Reviewer Invalid Transition: Reviewer tries Approved → Submitted → expect 400 Bad Request.
+5. Reviewer Invalid Transition: Reviewer tries Approved → Submitted → expect 400 Bad Request.
