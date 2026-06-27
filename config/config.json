@@ -1,41 +1,23 @@
 {
   "development": {
-    "username": "process.env.DB_USERNAME",
-    "password": "process.env.DB_PASSWORD",
-    "database": "process.env.DB_NAME",
-    "host": "process.env.DB_HOST",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "username": "postgres",
+    "password": "DBUser@!!",
+    "database": "leave_workflowDB",
+    "host": "db",
+    "dialect": "postgres"
   },
   "test": {
-    "username": "process.env.DB_USERNAME",
-    "password": "process.env.DB_PASSWORD",
-    "database": "process.env.DB_NAME",
-    "host": "process.env.DB_HOST",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "username": "postgres",
+    "password": "DBUser@!!",
+    "database": "leave_workflowDB",
+    "host": "db",
+    "dialect": "postgres"
   },
   "production": {
     "username": "process.env.DB_USERNAME",
     "password": "process.env.DB_PASSWORD",
     "database": "process.env.DB_NAME",
     "host": "process.env.DB_HOST",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
-    }
+    "dialect": "postgres"
   }
 }
