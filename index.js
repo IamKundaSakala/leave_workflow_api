@@ -11,7 +11,7 @@ const {
   getAllSubmissions,
   updateSubmission,
 } = require("./controller/submissionController");
-require("dotenv").config();
+// require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
