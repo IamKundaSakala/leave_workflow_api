@@ -155,6 +155,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.get("/test", (req, res) => {
   res.status(200).json({ message: "API is running!!" });
 });
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "API is reachable!!" });
+});
 // --- Submissions Routes ---
 
 /**
