@@ -16,19 +16,24 @@ const cors = require("cors");
 
 const app = express();
 app.use(
-  cors(
-    {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    },
-    {
-      origin: "http://192.168.1.107:3000",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    },
-  ),
+  cors({
+    origin: "*",
+  }),
 );
+// app.use(
+// cors(
+//   {
+//     origin: "http://localhost:3000",
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   },
+//   {
+//     origin: "http://192.168.1.107:3000",
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   },
+// ),
+// );
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -147,7 +152,9 @@ const options = {
 
 const specs = swaggerJsdoc(options);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
+app.get("/test", (req, res) => {
+  res.status(200).json({ message: "API is running!!" });
+});
 // --- Submissions Routes ---
 
 /**
