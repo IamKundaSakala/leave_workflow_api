@@ -68,8 +68,6 @@ The API implements:
 Supported workflow:
 
 ```
-Draft
-   ↓
 Submitted
    ↓
 UnderReview
@@ -142,11 +140,11 @@ Run the database migrations:
 npx sequelize-cli db:migrate
 ```
 
-If you have seeders:
+<!-- If you have seeders:
 
 ```bash
 npx sequelize-cli db:seed:all
-```
+``` -->
 
 ---
 
@@ -161,7 +159,7 @@ npm start
 The API will be available at:
 
 ```
-http://localhost:3000
+http://localhost:3003
 ```
 
 ---
@@ -171,7 +169,7 @@ http://localhost:3000
 Swagger documentation is available at:
 
 ```
-http://localhost:3000/api-docs
+http://localhost:3003/api-docs
 ```
 
 Swagger allows you to:
@@ -187,7 +185,7 @@ Swagger allows you to:
 Run the automated test suite:
 
 ```bash
-npm test
+npm run test
 ```
 
 The tests cover:
@@ -225,6 +223,7 @@ Potential improvements include:
 - Audit logging
 - Leave balance management
 - Administrator role
+- Management by company(reviewer and applicant setups under orgs/depts)
 - Dashboard and reporting
 - File attachment support
 - CI/CD pipeline
