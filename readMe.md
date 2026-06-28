@@ -162,14 +162,13 @@ DB_PORT      Database port
 
 ## 🚀 Future Enhancements
 - Email notifications (approval/rejection)
-- Audit logging
+- Audit logging (track life cycle of a submission)
 - Leave balance tracking
 - Admin dashboard
 - Multi-organization support
 - File attachments for leave requests
 - CI/CD pipeline improvements
-- Frontend UI (React / Next.js integration)
-
+- Pagination
 ---
 
 ## 🤖 AI Assistance
